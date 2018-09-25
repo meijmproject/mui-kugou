@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<style>
+			.mui-slider{
+				height:150px;
+			}
+			.mui-scroll-wrapper{
+				height:calc(100% - 150px);
+				top:150px;
+			}
+			.scroll-song{
+				width:100%;
+				height:50px;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				font-size: 15px;
+				line-height: 50px;
+				padding:0 15px;
+				box-sizing: border-box;
+				border-top:1px solid rgb(229,229,229);
+				color:#333;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="mui-slider">
+			<div class="mui-slider-group mui-slider-loop">		
+			</div>
+			<div class="mui-slider-indicator">		
+			</div>
+		</div>
+		<div class="mui-scroll-wrapper">
+			<div class="mui-scroll"></div>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script src="js/zepto.js"></script>
+		<script type="text/javascript">
+			mui.init();
+			mui.plusReady(function(){
+				plus.nativeUI.showWaiting("数据加载中....");
+				mui.ajax("http://m.kugou.com/?json=true",{
+					dataType:"json",
+					success:function(data){
+						var banners=[],songlist=[];
+						banners=data.banner;
+						songlist=data.data;
+						var html="<div class='mui-slider-item mui-slider-item-duplicate'><a href='#'><img src='"+banners[banners.length-1].imgurl+"'></a></div>";
+						var indor="";
+						for(var i=0;i<banners.length;i++){
+							html+="<div class='mui-slider-item'><a href='#'><img src='"+banners[i].imgurl+"'></a></div>";
+							if(i==0){
+								indor+="<div class='mui-indicator mui-active'></div>"
+							}else{
+								indor+="<div class='mui-indicator'></div>"
+							}
+						};
+						html+="<div class='mui-slider-item mui-slider-item-duplicate'><a href='#'><img src='"+banners[0].imgurl+"'></a></div>";
+						var song="";
+						for(var i=0;i<songlist.length;i++){
+							song+="<div class='scroll-song'>"+songlist[i].filename+"</div>"
+						}
+						document.querySelector(".mui-slider-group").innerHTML=html;
+						document.querySelector(".mui-slider-indicator").innerHTML=indor;
+						document.querySelector(".mui-scroll").innerHTML=song;
+						mui(".mui-slider").slider({
+							interval:1000
+						});
+						mui(".mui-scroll-wrapper").scroll({
+							deceleration: 0.0005
+						});
+					   var mark;	
+					   var prev=function(){
+					   	var childWeb=plus.webview.getWebviewById("songListen");
+							if(mark==0){
+								mark=songlist.length-1;
+							}else{
+								mark--;	
+							}					  							
+							  mui.fire(childWeb,"getPrev",{hash:songlist[mark].hash})
+					  };
+					  var next=function(){				  	
+							var childWeb=plus.webview.getWebviewById("songListen");
+							if(mark==songlist.length-1){
+								mark=0;
+							}else{
+								mark++;
+							}						
+							mui.fire(childWeb,"getNext",{hash:songlist[mark].hash});
+					  }
+						window.addEventListener("prev",prev);
+						window.addEventListener("next",next);
+						mui(".mui-scroll").on("tap",".scroll-song",function(){
+							var index=$(this).index();					
+							mark=index;						
+				            mui.openWindow({
+								url:"songListen.html",	
+								id:"songListen",
+								styles:{
+									top:"0px",
+									bottom:"0px"
+								},
+								extras:{
+									hash:songlist[index].hash,
+									index:mark,
+									wid:"newSongs.html"
+								}						
+							})
+						});
+						plus.nativeUI.closeWaiting();
+					}
+				})
+			})
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<style>
+			.singer-group{
+				width:90%;
+				height:auto;
+				margin: 15px auto;
+				border:1px solid rgb(228,228,228);
+				border-radius: 5px;
+			}
+			.singer-item{		
+			    height:50px;
+				line-height: 50px;
+				padding: 0 15px;
+				box-sizing: border-box;
+				color:#333;
+				border-top:1px solid rgb(228,228,228);
+			}
+			.singer-item:first-child{
+				border-top:none;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="mui-scroll-wrapper">
+			<div class="mui-scroll">
+					<div class="singer-group">
+			<div class="singer-item" id="88">热门歌手</div>
+		</div>
+		<div class="singer-group">
+			<div class="singer-item" id="1">华语男歌手</div>
+			<div class="singer-item" id="2">华语女歌手</div>
+			<div class="singer-item" id="3">华语组合</div>
+		</div>
+		<div class="singer-group">
+			<div class="singer-item" id="4">日韩男歌手</div>
+			<div class="singer-item" id="5">日韩女歌手</div>
+			<div class="singer-item" id="6">日韩组合</div>
+		</div>
+		<div class="singer-group">
+			<div class="singer-item" id="7">欧美男歌手</div>
+			<div class="singer-item" id="8">欧美女歌手</div>
+			<div class="singer-item" id="9">欧美组合</div>
+		</div>
+			</div>
+		</div>
+	
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript">
+			mui.init();
+			mui.plusReady(function(){		
+				mui(".mui-scroll-wrapper").scroll({
+					deceleration: 0.0005
+				});
+				mui(".singer-group").on("tap",".singer-item",function(){
+					var singId=this.getAttribute("id");				
+					mui.openWindow({
+						url:"singerList.html",
+						id:"singerList",
+						styles:{
+							top:"50px",
+							bottom:"0px"
+						},
+						extras:{
+							pid:singId
+						}
+					});
+				})
+			})
+		</script>
+	</body>
+
+</html>

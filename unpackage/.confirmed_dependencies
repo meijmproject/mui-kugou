@@ -1,0 +1,61 @@
+{
+  "index.html": {
+    "resources": [
+      "newSongs.html"
+    ],
+    "refer": [
+      "rank.html",
+      "newSongs.html",
+      "plist.html",
+      "search.html",
+      "singer.html"
+    ]
+  },
+  "newSongs.html": {
+    "refer": [
+      "songListen.html"
+    ]
+  },
+  "search.html": {
+    "refer": [
+      "songListen.html"
+    ]
+  },
+  "rank.html": {
+    "refer": [
+      "rankList.html"
+    ]
+  },
+  "rankList.html": {
+    "refer": [
+      "songListen.html"
+    ]
+  },
+  "plist.html": {
+    "refer": [
+      "rankList.html",
+      "plistInfo.html"
+    ]
+  },
+  "plistInfo.html": {
+    "refer": [
+      "songListen.html"
+    ]
+  },
+  "singer.html": {
+    "refer": [
+      "singerList.html"
+    ]
+  },
+  "singerList.html": {
+    "refer": [
+      "songListen.html",
+      "singerInfo.html"
+    ]
+  },
+  "singerInfo.html": {
+    "refer": [
+      "songListen.html"
+    ]
+  }
+}

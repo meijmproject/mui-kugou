@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<style>
+			.rank-title{
+		width:100%;
+		height:50px;		
+		line-height:50px;	
+		background: #2CA2F9;
+		position: absolute;
+		color: #fff;
+			}
+			.title{
+				width:100%;
+				text-align: center;	
+			}
+			.mui-icon-back{			
+				position: absolute;	
+				display: inline-block;
+				margin-top:12px;
+			}
+			.mui-scroll-wrapper{
+				top:50px;	
+			}
+			.scroll-song{
+				width:100%;
+				height:80px;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				font-size: 15px;		
+				box-sizing: border-box;
+				padding:10px;
+				border-top:1px solid rgb(229,229,229);
+			}
+			.scroll-song:last-of-type{
+				border-bottom:1px solid rgb(229,229,229);
+			}
+			.scroll-song img{
+				height:100%;
+				vertical-align: middle;
+				margin-right:15px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="rank-title">
+			<span class="mui-icon mui-icon-back mui-action-back"></span>
+			<div class="title"></div>
+		</div>
+		<div class="mui-scroll-wrapper">
+			<div class="mui-scroll"></div>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script src="js/zepto.js"></script>
+		<script type="text/javascript">
+			mui.init();
+			mui.plusReady(function(){
+				plus.nativeUI.showWaiting("数据加载中...");
+				var obj=plus.webview.currentWebview();
+				var singerId=obj.pid;
+				mui.ajax("http://m.kugou.com/singer/list/"+singerId+"?json=true",{
+					dataType:"json",
+					success:function(data){
+						var songs=data.singers.list.info;
+						document.querySelector(".title").innerText=data.classname;
+						var songHtml="";
+						for(var i=0;i<songs.length;i++){
+							songHtml+="<div class='scroll-song'><img src='"+songs[i].imgurl.replace("{size}","400")+"'>"+songs[i].singername+"</div>"
+						}
+						document.querySelector(".mui-scroll").innerHTML=songHtml;
+						mui(".mui-scroll-wrapper").scroll({
+							deceleration: 0.0005
+						});
+						mui(".mui-scroll").on("tap",".scroll-song",function(){
+							var index=$(this).index();					
+							mark=index;
+				            mui.openWindow({
+								url:"singerInfo.html",	
+								id:"singerInfo",
+								styles:{
+									top:"50px",
+									bottom:"0px"
+								},
+								extras:{
+									singid:songs[index].singerid,
+									imgurl:songs[index].imgurl.replace("{size}","400")
+								}						
+							})
+						});
+						plus.nativeUI.closeWaiting();
+					}
+				})
+				
+			})
+		</script>
+	</body>
+
+</html>

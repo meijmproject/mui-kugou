@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<style>
+			.mui-icon-back{
+				font-size:25px;
+				vertical-align: middle;
+				width:10%;
+				position: absolute;
+				top:5px;
+				color: #A9A9A9;
+			
+			}
+			.search{
+				width:100%;
+				height:55px;
+				padding:10px 0px;
+				box-sizing: border-box;
+				position: fixed;
+				background: #fff;
+			}
+			.input-search{
+				width:100%;
+				display: inline-block;
+				height:100%;
+				position: relative;	
+			}
+		.mui-icon-search{
+			position:absolute;
+			top:5px;
+			left:40px;
+			color:#A9A9A9
+		}
+		.input-search input{
+			width:70%;
+			padding-left:30px;
+			height:100%;
+			float: left;
+			box-sizing: border-box;
+			margin-left: 10%;
+			border-radius: 7px;
+		}
+		.input-search input::-webkit-input-placeholder{
+			font-size:15px;
+		}
+		.search-btn{
+		float: left;
+		height:100%;
+		background: #2ba2fa;
+		color:#fff;
+		margin-left:5px;
+		border-radius: 7px;
+		font-size:16px;
+	       }
+	       .mui-scroll-wrapper{
+	       	width:100%;
+	       	padding-top:85px;
+	       }
+	       .scroll-song{
+				width:100%;
+				height:50px;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				font-size: 15px;
+				line-height: 50px;
+				padding:0 20px;
+				box-sizing: border-box;
+				border-top:1px solid rgb(229,229,229);
+				color:#333;
+			}
+			.scroll-song{
+				border-bottom:1px solid rgb(229,229,229);
+			}
+			.searchTotals{
+				position: fixed;
+				top:55px;
+				background-color:#e1e1e1;
+				width: 100%;
+				height:30px;
+				line-height: 30px;
+				color: #484848;
+				font-size: 14px;
+				padding: 0 10px;
+			}
+			.mui-pull-caption{
+				color: #484848;
+				font-weight: 200;
+			}
+		</style>
+	</head>
+	<body>	
+		<div class="search">
+			<div class="input-search">
+				<span class="mui-icon mui-icon-back mui-action-back" style="float: left;"></span>
+				<span class="mui-icon mui-icon-search" ></span>
+				<input type="text" placeholder="请输入歌曲名或歌手名">
+				<button class="search-btn">搜索</button>
+			</div>
+		</div>
+		<div class="mui-scroll-wrapper">
+			<div class="mui-scroll">
+				
+			</div>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script src="js/zepto.js"></script>
+		<script type="text/javascript">		
+			mui.plusReady(function(){
+				var songs=[];
+				var size=30;
+				var key="";
+				var scroll=document.querySelector(".mui-scroll");
+							mui.init({
+				pullRefresh:{
+					container:".mui-scroll-wrapper",
+					up:{
+						contentrefresh:"正在加载中...",
+						contentnomore:"没有更多数据了",
+						callback:function(){
+								size+=15;	
+							ajaxMore(size,key);					
+						}
+					}
+				}
+			});
+		
+				function ajaxMore(size,key){
+						mui.ajax("http://mobilecdn.kugou.com/api/v3/search/song",{
+						data:{
+							format:"json", 
+							keyword:key,
+							page:1,
+							pagesize:size,
+							showtype:1
+						},
+						dataType:"json",
+						success:function(data){	
+							var total=0;
+							if(key==""){
+								mui('.mui-scroll-wrapper').pullRefresh().endPullupToRefresh(true);
+							}else{
+								mui('.mui-scroll-wrapper').pullRefresh().endPullupToRefresh(false);
+							};						
+							songs=data.data.info;
+							var songlist="";
+							for(var i=0;i<songs.length;i++){
+								total++;
+								songlist+="<div class='scroll-song'>"+songs[i].filename+"</div>"
+							};
+							songlist+="<div class='searchTotals'>共有"+total+"条搜索结果</div>"
+							scroll.innerHTML=songlist;												
+							plus.nativeUI.closeWaiting()
+						}				
+					});
+				}		
+				mui(".input-search").off().on("tap",".search-btn",function(){
+					plus.nativeUI.showWaiting("数据加载中...");
+					 key=document.querySelector("input").value;
+						ajaxMore(size,key);		
+				});
+						var mark;			
+						var prev=function(){									
+							var childWeb=plus.webview.getWebviewById("songListen");	
+							if(mark==0){
+								mark=songs.length-1
+							}else{
+								 mark--;			
+							}						 					
+							  mui.fire(childWeb,"getPrev",{hash:songs[mark].hash});
+						};
+						var next=function(){                        
+							var childWeb=plus.webview.getWebviewById("songListen");
+							if(mark==songs.length-1){
+								mark=0
+							}else{
+								mark++;
+							}													
+							mui.fire(childWeb,"getNext",{hash:songs[mark].hash});					
+						};					
+						window.addEventListener("prev",prev);
+						window.addEventListener("next",next);
+						mui(".mui-scroll").off("tap",".scroll-song").on("tap",".scroll-song",function(){/*off()是为了避免再次查询，给元素又增加一次点击事件*/
+							var index=$(this).index();							
+							mark=index;
+						    mui.openWindow({
+								url:"songListen.html",
+								id:"songListen",
+								styles:{
+									top:"0px",
+									bottom:"0px"
+								},
+								extras:{
+									hash:songs[index].hash,	
+									wid:"search"				
+								}
+								
+							})
+						})
+			})
+		</script>
+	</body>
+
+</html>

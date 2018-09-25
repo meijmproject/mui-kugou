@@ -1,0 +1,265 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<style>
+			html,body{
+				height:100%;
+			}
+			.mui-icon-back{
+				font-size:40px;
+				color:#fff;
+				position: relative;
+				z-index:100
+			}		 
+			.content{
+				width:100%;
+				height:auto;
+				text-align: center;
+				color:#fff;
+				position: relative;
+				z-index:100
+			}
+			.singer-img{
+				width:300px;
+				height:200px;
+				margin:0 auto;
+				padding-top:30px;
+			}
+			.audio-panel{
+				width:80%;
+				height:auto;
+				margin:0 auto;
+			}
+			.audio-next,.audio-play,.audio-prev{
+				display: inline-block;
+				width:30%;
+				height:100px;
+			}
+			.audio-next{
+				background: url("./img/play_next.png") no-repeat center;
+				background-size: 40% auto;
+			}
+			.audio-play{
+				background: url("./img/play_pause.png") no-repeat center;
+				background-size: 60% auto;
+			}
+			.audio-prev{
+				background: url("./img/play_prev.png") no-repeat center;
+				background-size: 40% auto;
+			}
+			.audio-pause{
+				background-image: url("./img/play_play.png")!important;
+			}
+			.progerssBar{
+				width:100%;
+				margin:30px auto 0 auto;
+				position: relative;
+				height:22px;
+				z-index: 100;		
+			}
+			.progerssBar a{
+				color:#fff;	
+				vertical-align: middle;	
+			}
+			.mui-progressbar{
+				height:3px;
+				vertical-align: middle;
+			}
+			img{
+				height:100%;
+			}
+			#progress{
+				display: inline-block;	
+				width:70%;
+				margin:0 auto;
+			}
+			.mui-progressbar.mui-progressbar-infinite:before,.mui-progressbar span{
+				background: #26A2FF;;
+			}
+			.drap{
+				width:16px;
+				height:16px;
+				background: #fff;
+				position: absolute;
+				left:15%;
+				top:3px;
+				border-radius: 50%;
+				z-index:100
+			}
+			.bgImg,.mask{
+				position: fixed;
+				top:0;
+				left:0;
+				width:100%;
+				height:100%;
+				background-color: rgba(77,73,83,0.7);
+			}
+			.mask{
+				z-index:10;
+			}
+			#currentTime,#total{
+				font-size:14px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="bgImg"></div>
+		<div class="mask"></div>
+		<span class="mui-icon mui-icon-back mui-action-back"></span>
+		<div class="content">
+			<div class="song-title"></div>
+			<div class="singer-img"></div>
+			<div class="progerssBar">
+				<a id="currentTime">00:00</a>
+			<div id="progress" class="mui-progressbar">
+				<span></span>	
+			</div>
+			<div class="drap"></div>
+			<a id="total">00:00</a>
+			</div>
+			
+			<div class="audio-panel">
+				<span class="audio-prev"></span>
+				<span class="audio-play"></span>
+				<span class="audio-next"></span>
+			</div>
+		</div>
+		<audio id="audio"></audio>
+		<script src="js/mui.min.js"></script>
+		<script src="js/zepto.js"></script>
+		<script type="text/javascript">
+			var songInfo="";
+			mui.init();
+			mui.plusReady(function(){
+				plus.nativeUI.showWaiting("数据加载中...");
+				var obj=plus.webview.currentWebview(),
+				hashs=obj.hash,
+			    pId=obj.wid,
+			    bol=1,
+			    parentWeb=plus.webview.getWebviewById(pId),
+				p=document.querySelector("#audio"),
+				drap=document.querySelector(".drap"),
+				progress=document.querySelector("#progress"),
+				currentTime=document.querySelector("#currentTime"),
+				songLength;
+				/*初始化进度条*/
+				mui("#progress").progressbar({progress:0}).show();
+				/*点击进度条播放到任意位置*/
+				mui(".progerssBar").on("tap","#progress",function(e){				        
+							var offsetX=e.detail.center.x-this.offsetLeft;
+							p.currentTime=songLength*(offsetX/this.offsetWidth);
+				});	
+				/*拖动进度条*/
+				var move=function(e){			
+					var offsetX=progress.offsetLeft;
+					var pressBar=document.querySelector(".progerssBar");
+				    var moveX=e.detail.center.x;
+					drap.style.left+=moveX-offsetX+pressBar.offsetWidth*0.15+"px";
+					p.currentTime=songLength*((moveX-offsetX)/progress.offsetWidth);
+				}		
+				drap.addEventListener("drag",move,false);
+				function ajaxSong(hashs){	
+					var pressBar=document.querySelector(".progerssBar");
+					drap.style.left=pressBar.offsetWidth*0.15+"px";
+					document.querySelector("#currentTime").innerText="00:00";
+					document.querySelector("#total").innerText="00:00";
+					mui("#progress").progressbar().setProgress(0);
+					mui.ajax("http://www.kugou.com/yy/index.php",{
+					data:{  
+						r:"play/getdata",
+						hash:hashs
+					},
+					dataType:"json",
+					success:function(data){		
+						songInfo=data.data;	
+						document.querySelector(".song-title").innerText=songInfo.audio_name;
+						document.querySelector(".singer-img").innerHTML="<img src='"+songInfo.img+"'>";
+						document.querySelector(".bgImg").style.cssText="background:url("+songInfo.img+") no-repeat center;background-size:cover;filter:blur(5px);-webkit-filter:blur(5px)"
+					  	p.src=songInfo.play_url;
+					  	p.oncanplay=function(){				  		
+					  		songLength=p.duration;					
+					  		document.querySelector("#total").innerText=date(songLength);				  			
+					  	};
+					  	p.oncanplaythrough=function(){
+					 		plus.nativeUI.closeWaiting();
+					  	};
+					  	p.play();					  
+					  	p.addEventListener("timeupdate",function(){
+					  		var currentime=p.currentTime;  		
+					  		currentTime.innerText=date(currentime);					  		
+					  		mui("#progress").progressbar().setProgress(100*currentime/songLength);
+					  		if((progress.offsetWidth-16)*(currentime/songLength)<progress.offsetWidth-16){
+					  			drap.style.left=(progress.offsetWidth-16)*(currentime/songLength)+pressBar.offsetWidth*0.15+"px";
+					  		}else{
+					  			drap.style.left=(progress.offsetWidth-16)+pressBar.offsetWidth*0.15+"px";
+					  		}
+					  	});
+					  	p.addEventListener("ended",function(){	
+					  		plus.nativeUI.showWaiting("数据加载中...");
+					  		mui.fire(parentWeb,"next");					  
+					  	})
+					}
+				});
+			};
+			function date(value){
+				    var length = Math.floor(parseInt(value));
+        			var minute = Math.floor(value / 60);
+                     if (minute < 10) {
+                        minute = '0' + minute;
+                          }
+                    var second = length % 60;
+                     if (second < 10) {
+                        second = '0' + second;
+                          }
+                         return minute + ':' + second;
+			        }
+				ajaxSong(hashs);/*进入播放页面自动播放*/
+				var audioPlay=document.querySelector(".audio-play");
+				mui(".audio-panel").off("tap",".audio-play").on("tap",".audio-play",function(){		
+					if(bol){
+						audioPlay.setAttribute("class","audio-play audio-pause");
+						p.pause();				
+						bol=0;					 
+					}else{
+						audioPlay.setAttribute("class","audio-play");
+						p.play();
+						bol=1;
+					}
+				});			
+				/*点击播放上一首*/
+				mui(".audio-panel").off("tap",".audio-prev").on("tap",".audio-prev",function(){	
+					p.pause();
+					plus.nativeUI.showWaiting("数据加载中...");
+					mui.fire(parentWeb,"prev");				
+				});
+				/*点击播放下一首*/
+				mui(".audio-panel").off("tap",".audio-next").on("tap",".audio-next",function(){
+					p.pause();
+					plus.nativeUI.showWaiting("数据加载中...");
+					mui.fire(parentWeb,"next");				
+				});
+			var getPrev=function(e){		
+				var hashP=e.detail.hash;
+				    ajaxSong(hashP);
+				    audioPlay.setAttribute("class","audio-play");
+				    bol=1;
+			}
+			var getNext=function(e){	
+				var hashP=e.detail.hash;
+				    ajaxSong(hashP);
+				    audioPlay.setAttribute("class","audio-play");
+				    bol=1;
+			}
+				window.addEventListener("getPrev",getPrev);
+				window.addEventListener("getNext",getNext);
+			});
+	
+		</script>
+	</body>
+
+</html>

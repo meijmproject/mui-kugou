@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="css/iconfont.css"/>
+    <style>
+    	.logo-container{
+    		width:100%;
+    		height:50px;
+    		padding:10px;
+    		box-sizing: border-box;
+			background: #2CA2F9;
+    	}
+    	.head-logo,.head-search{
+    		height:100%;
+    		display: inline-block;
+    		float: left;
+    	}
+    	img{
+    		height: 100%;
+    	}
+    	.head-search{
+    		float: right;
+    		padding:3px 0;
+    		box-sizing: border-box;
+    	}
+    	
+    </style>
+    <script type="text/javascript" charset="utf-8">
+    mui.init();    
+    mui.plusReady(function() {
+				//设置默认打开首页显示的子页序号
+			var Index = 0;
+				//把子页面路径写在数组里面
+				var subpages = ['newSongs.html', 'rank.html', 'plist.html','singer.html']
+				//获取当前页面所属的Webview窗口对象
+				var self = plus.webview.currentWebview();
+				for(var i = 0; i < 4; i++) {
+					//创建webview子页
+					var sub = plus.webview.create(
+						subpages[i], //子页url
+						subpages[i],
+						{
+							top: '50px',
+							bottom: '50px',
+							scrollIndicator: "none" //隐藏滚动条
+						}
+					);
+					//如果不是我们设置的子页就隐藏
+					if(i != Index) {
+						sub.hide()
+					}
+					//将webview对象填充到窗口
+					self.append(sub)
+				}
+				//当前激活选项
+				var activeTab = subpages[Index]
+				var targetTab;
+				mui('.mui-bar-tab').on('tap', 'a', function(e) {
+					//获取子页面的id
+					var j = this.getAttribute('id')
+					targetTab = subpages[j]
+					if(activeTab == targetTab) {
+						return
+					}	
+					//显示目标选项卡
+					plus.webview.show(targetTab);
+					//隐藏当前选项卡
+					plus.webview.hide(activeTab);
+					//更改当前活跃选项卡
+					activeTab = targetTab
+				});
+				document.querySelector(".head-search").addEventListener("tap",function(){
+					mui.openWindow({
+						url:"search.html",
+						id:"search",
+						styles:{
+							top:"0px",
+							bottom:"0px"
+						},
+						extras:{
+							
+						}
+					})
+				})
+			});
+    </script>
+</head>
+<body>
+	<header>
+		<div class="logo-container">
+			<div class="head-logo">
+				<a href="#">
+					<img src="http://m.kugou.com/v3/static/images/index/logo.png">
+				</a>
+			</div>
+			<div class="head-search">
+				<a href="#">
+					<img src="http://m.kugou.com/v3/static/images/index/search.png">
+				</a>
+			</div>
+		</div>
+	</header>
+	<nav class="mui-bar mui-bar-tab" id="nav">
+			<a class="mui-tab-item mui-active" id="0">
+				<span class="mui-icon iconfont icon-dianyingzhiye-gequbangdianjitai"></span>
+				<span class="mui-tab-label">新歌</span>
+			</a>
+			<a class="mui-tab-item" id="1">
+				<span class="mui-icon iconfont icon-paixingbang"></span>
+				<span class="mui-tab-label">排行</span>
+			</a>
+			<a class="mui-tab-item" id="2">
+				<span class="mui-icon iconfont icon-fenlei"></span>
+				<span class="mui-tab-label">歌单</span>
+			</a>
+			<a class="mui-tab-item" id="3">
+				<span class="mui-icon iconfont icon-geshou"></span>
+				<span class="mui-tab-label">歌手</span>
+			</a>
+	</nav>
+</html>

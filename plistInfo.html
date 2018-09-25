@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/iconfont.css" />
+		<style>
+			.rank-title{
+		width:100%;
+		height:50px;	
+		line-height: 50px;	
+		background: rgba(214,30,30,0);
+		position: absolute;
+		color:#fff;
+		z-index:100;
+			}
+			.title{
+				width:100%;
+				text-align: center;
+				padding:0 10px 0 20px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.mui-icon-back{			
+				position: absolute;	
+				display: inline-block;
+				margin-top:12px;
+			}
+			.mui-scroll-wrapper{
+				top:0;
+				height:100%;
+			}
+			.scroll-song{
+				width:100%;
+				height:50px;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				font-size: 15px;
+				line-height: 50px;
+				padding:0 0 0 20px;
+				box-sizing: border-box;
+				border-top:1px solid rgb(229,229,229);
+				color:#333;	
+			}
+			.scroll-song:last-of-type{
+				border-bottom: 1px solid rgb(229,229,229);
+			}   
+			.bgImg{
+				width:100%;
+				height:auto;
+			}
+			.intro{
+				width:100%;
+				height:45px;			
+				padding:5px 8px 15px 8px;
+				border-bottom: 1px solid rgb(229,229,229);
+				overflow: hidden;
+				box-shadow: 0 5px #E1D8D8;
+			}
+			.intro p{
+				width:90%;
+				display: inline-block;
+				margin:0;
+				height:100%;
+				text-indent: 20px;			
+			}
+			.intro span{
+				width:10%;
+				display: inline-block;
+				text-align: center;
+				vertical-align: top;
+				font-size:30px;
+				color:#C3C3C3
+			}
+			.bg{
+				width:100%;
+				height:200px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="rank-title">
+			<span class="mui-icon mui-icon-back mui-action-back"></span>
+			<div class="title"></div>
+		</div>
+		<div class="mui-scroll-wrapper">
+			<div class="mui-scroll"></div>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script src="js/zepto.js"></script>
+		<script type="text/javascript">
+			mui.init();
+			mui.plusReady(function(){
+				plus.nativeUI.showWaiting("数据加载中...");
+				var obj=plus.webview.currentWebview();
+				var title=obj.title;
+				var specialid=obj.specialid;
+				var bgurl=obj.imgurl;
+				document.querySelector(".title").innerText=title;
+				mui.ajax("http://m.kugou.com/plist/list/"+specialid+"?json=true",{
+					dataType:"json",
+					success:function(data){
+						var songs=data.list.list.info;
+						var intro=data.info.list.intro;
+						var songHtml="<div class='bgImg'></div>";
+						for(var i=0;i<songs.length;i++){
+							songHtml+="<div class='scroll-song'>"+songs[i].filename+"</div>"
+						}
+						document.querySelector(".mui-scroll").innerHTML=songHtml;
+						document.querySelector(".bgImg").innerHTML="<div class='bg'></div><div class='intro'><p>"+intro+"</p><span class='mui-icon iconfont icon-xiala-copy textToggle'></span></div>";
+						mui(".mui-scroll-wrapper").scroll({
+							deceleration: 0.0005,
+							bounce:false
+						});
+						document.querySelector(".bg").style.cssText="background: url("+bgurl+") no-repeat center;background-size:cover;";
+						document.querySelector(".scroll-song").style.marginTop="5px";
+						document.querySelector(".mui-scroll-wrapper").addEventListener("scroll",function(){
+							var op=mui(".mui-scroll-wrapper").scroll().y/(-200);
+							document.querySelector(".rank-title").style.backgroundColor="rgba(43,162,251,"+op+")";					
+						});
+						var toggle=true;
+						document.querySelector(".textToggle").onclick=function(){
+							var textPa=document.querySelector(".intro");
+							if(toggle){
+								textPa.style.cssText="overflow: visible;height:auto;";
+								toggle=false;
+								this.setAttribute("class","mui-icon iconfont icon-xiala-copy-copy textToggle");
+							}else{							
+								textPa.style.cssText="overflow:hidden;height:45px;";
+								toggle=true;		
+								this.setAttribute("class","mui-icon iconfont icon-xiala-copy textToggle");
+							}
+						};
+						var mark;
+							var prev=function(){									
+							var childWeb=plus.webview.getWebviewById("songListen");	
+							if(mark==0){
+								mark=songs.length-1
+							}else{
+								 mark--;			
+							}						 					
+							  mui.fire(childWeb,"getPrev",{hash:songs[mark].hash});
+						}
+						var next=function(){                        
+							var childWeb=plus.webview.getWebviewById("songListen");
+							if(mark==songs.length-1){
+								mark=0
+							}else{
+								mark++;
+							}													
+							mui.fire(childWeb,"getNext",{hash:songs[mark].hash});					
+						}					
+						window.addEventListener("prev",prev);
+						window.addEventListener("next",next);
+						mui(".mui-scroll").on("tap",".scroll-song",function(){
+							var index=$(this).index()-1;					
+							mark=index;				
+				            mui.openWindow({
+								url:"songListen.html",	
+								id:"songListen",
+								styles:{
+									top:"0px",
+									bottom:"0px"
+								},
+								extras:{
+									hash:songs[index].hash,				
+									wid:"plistInfo"
+								}						
+							})
+						});
+						plus.nativeUI.closeWaiting();
+					}
+				})
+				
+			})
+		</script>
+	</body>
+
+</html>
