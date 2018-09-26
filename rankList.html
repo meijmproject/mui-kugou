@@ -35,12 +35,12 @@
 				overflow: hidden;
 				white-space: nowrap;
 				text-overflow: ellipsis;
-				font-size: 15px;
-				line-height: 50px;
+				font-size: 15px;				
 				padding:0 15px;
 				box-sizing: border-box;
 				border-top:1px solid rgb(229,229,229);
 				color:#333;
+				line-height: 50px;
 			}
 			.scroll-song:last-of-type{
 				border-bottom: 1px solid rgb(229,229,229);
@@ -56,7 +56,7 @@
 			}
 			.index{
 				margin-right:15px;
-				display: inline-block;
+				display: inline-block;	
 			}
 			.updateTime{
 				color:#fff;
@@ -69,6 +69,19 @@
 				font-size:15px;
 				background: -webkit-linear-gradient(bottom,rgba(0,0,0,0.6),rgba(0,0,0,0));
 				padding:0 10px;
+			}
+			.mui-icon-download{
+				color:#888;
+				float: right;
+				margin-top:12px;
+			}
+			.filename{
+			width:80%;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			display: inline-block;
+			vertical-align: middle;
 			}
 		</style>
 	</head>
@@ -106,17 +119,17 @@
 							if(i<3){
 								switch(i){
 									case 0:
-									songHtml+="<div class='scroll-song'><span class='index mui-badge mui-badge-danger'>"+(i+1)+"</span>"+songs[i].filename+"</div>";
+									songHtml+="<div class='scroll-song'><span class='index mui-badge mui-badge-danger'>"+(i+1)+"</span><span class='filename'>"+songs[i].filename+"</span><a class='mui-icon mui-icon-download' href='javascript:;'></a></div>";
 									break;
 									case 1:
-									songHtml+="<div class='scroll-song'><span class='index mui-badge mui-badge-warning'>"+(i+1)+"</span>"+songs[i].filename+"</div>";
+									songHtml+="<div class='scroll-song'><span class='index mui-badge mui-badge-warning'>"+(i+1)+"</span><span class='filename'>"+songs[i].filename+"</span><a class='mui-icon mui-icon-download' href='javascript:;'></a></div>";
 									break;
 									case 2:
-									songHtml+="<div class='scroll-song'><span class='index mui-badge mui-badge-purple'>"+(i+1)+"</span>"+songs[i].filename+"</div>";
+									songHtml+="<div class='scroll-song'><span class='index mui-badge mui-badge-purple'>"+(i+1)+"</span><span class='filename'>"+songs[i].filename+"</span><a class='mui-icon mui-icon-download' href='javascript:;'></a></div>";
 									break;
 								}			
 							}else{
-								songHtml+="<div class='scroll-song'><span class='index mui-badge'>"+(i+1)+"</span>"+songs[i].filename+"</div>"
+								songHtml+="<div class='scroll-song'><span class='index mui-badge'>"+(i+1)+"</span><span class='filename'>"+songs[i].filename+"</span><a class='mui-icon mui-icon-download' href='javascript:;'></a></div>"
 							}						
 						}
 						document.querySelector(".mui-scroll").innerHTML=songHtml;
@@ -129,6 +142,20 @@
 						document.querySelector(".mui-scroll-wrapper").addEventListener("scroll",function(){
 							var op=mui(".mui-scroll-wrapper").scroll().y/(-200);
 							document.querySelector(".rank-title").style.backgroundColor="rgba(43,162,251,"+op+")";					
+						});
+							mui(".scroll-song").on("tap",".mui-icon-download",function(e){
+							e.stopPropagation();/*阻止冒泡，避免点击传播到scoll-song层*/
+							plus.nativeUI.confirm("下载需要手机酷狗客户端的支持",function(e){
+								/*获取下载手机客户端按钮，下载客户端*/
+								if(e.index==0){
+									if(mui.os.android){
+										location.href="http://download.kugou.com/download/kugou_android"
+									}else{
+										location.href="http://download.kugou.com/download/kugou_iphone"
+									}
+									
+								}
+							},{buttons:["下载手机酷狗","取消"]})
 						});
 						function getDate(){
 							var d=new Date();
@@ -165,7 +192,7 @@
 						window.addEventListener("prev",prev);
 						window.addEventListener("next",next);
 						mui(".mui-scroll").on("tap",".scroll-song",function(){
-							var index=$(this).index(".scroll-song");					
+							var index=$(this).index()-1;					
 							mark=index;					
 				            mui.openWindow({
 								url:"songListen.html",	

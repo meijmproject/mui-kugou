@@ -40,12 +40,15 @@
 				overflow: hidden;
 				white-space: nowrap;
 				text-overflow: ellipsis;
-				font-size: 15px;
-				line-height: 50px;
-				padding:0 0 0 20px;
+				font-size: 15px;			
+				padding:0 10px 0 20px;
 				box-sizing: border-box;
 				border-top:1px solid rgb(229,229,229);
 				color:#333;	
+				line-height: 50px;	
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
 			}
 			.scroll-song:last-of-type{
 				border-bottom: 1px solid rgb(229,229,229);
@@ -61,6 +64,7 @@
 				border-bottom: 1px solid rgb(229,229,229);
 				overflow: hidden;
 				box-shadow: 0 5px #E1D8D8;
+				overflow: hidden;
 			}
 			.intro p{
 				width:90%;
@@ -80,6 +84,15 @@
 			.bg{
 				width:100%;
 				height:200px;
+			}
+			.mui-icon-download{
+				color:#888;			
+			}
+			.filename{
+				width:90%;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
 			}
 		</style>
 	</head>
@@ -109,13 +122,22 @@
 						var intro=data.info.list.intro;
 						var songHtml="<div class='bgImg'></div>";
 						for(var i=0;i<songs.length;i++){
-							songHtml+="<div class='scroll-song'>"+songs[i].filename+"</div>"
+							songHtml+="<div class='scroll-song'><span class='filename'>"+songs[i].filename+"</span><a class='mui-icon mui-icon-download' href='javascript:;'></a></div>"
 						}
 						document.querySelector(".mui-scroll").innerHTML=songHtml;
 						document.querySelector(".bgImg").innerHTML="<div class='bg'></div><div class='intro'><p>"+intro+"</p><span class='mui-icon iconfont icon-xiala-copy textToggle'></span></div>";
 						mui(".mui-scroll-wrapper").scroll({
 							deceleration: 0.0005,
 							bounce:false
+						});					
+						mui(".scroll-song").on("tap",".mui-icon-download",function(e){
+							e.stopPropagation();/*阻止冒泡，避免点击传播到scoll-song层*/
+							plus.nativeUI.confirm("下载需要手机酷狗客户端的支持",function(e){
+								/*获取下载手机客户端按钮，下载客户端*/
+								if(e.index==0){
+									location.href="http://download.kugou.com/download/kugou_android"
+								}
+							},{buttons:["下载手机客户端","取消"]})
 						});
 						document.querySelector(".bg").style.cssText="background: url("+bgurl+") no-repeat center;background-size:cover;";
 						document.querySelector(".scroll-song").style.marginTop="5px";
@@ -127,11 +149,11 @@
 						document.querySelector(".textToggle").onclick=function(){
 							var textPa=document.querySelector(".intro");
 							if(toggle){
-								textPa.style.cssText="overflow: visible;height:auto;";
+								textPa.style.height="auto";
 								toggle=false;
 								this.setAttribute("class","mui-icon iconfont icon-xiala-copy-copy textToggle");
 							}else{							
-								textPa.style.cssText="overflow:hidden;height:45px;";
+								textPa.style.height="45px";
 								toggle=true;		
 								this.setAttribute("class","mui-icon iconfont icon-xiala-copy textToggle");
 							}

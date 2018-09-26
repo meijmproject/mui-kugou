@@ -161,7 +161,7 @@
 				    var moveX=e.detail.center.x;
 					drap.style.left+=moveX-offsetX+pressBar.offsetWidth*0.15+"px";
 					p.currentTime=songLength*((moveX-offsetX)/progress.offsetWidth);
-				}		
+				};		
 				drap.addEventListener("drag",move,false);
 				function ajaxSong(hashs){	
 					var pressBar=document.querySelector(".progerssBar");
@@ -176,13 +176,13 @@
 					},
 					dataType:"json",
 					success:function(data){		
-						songInfo=data.data;	
+						songInfo=data.data;							
 						document.querySelector(".song-title").innerText=songInfo.audio_name;
 						document.querySelector(".singer-img").innerHTML="<img src='"+songInfo.img+"'>";
-						document.querySelector(".bgImg").style.cssText="background:url("+songInfo.img+") no-repeat center;background-size:cover;filter:blur(5px);-webkit-filter:blur(5px)"
+						document.querySelector(".bgImg").style.cssText="background:url("+songInfo.img+") no-repeat center;background-size:cover;filter:blur(5px);-webkit-filter:blur(5px)";				
 					  	p.src=songInfo.play_url;
 					  	p.oncanplay=function(){				  		
-					  		songLength=p.duration;					
+					  		songLength=p.duration;				
 					  		document.querySelector("#total").innerText=date(songLength);				  			
 					  	};
 					  	p.oncanplaythrough=function(){
@@ -220,7 +220,7 @@
 			        }
 				ajaxSong(hashs);/*进入播放页面自动播放*/
 				var audioPlay=document.querySelector(".audio-play");
-				mui(".audio-panel").off("tap",".audio-play").on("tap",".audio-play",function(){		
+				mui(".audio-panel").on("tap",".audio-play",function(){		
 					if(bol){
 						audioPlay.setAttribute("class","audio-play audio-pause");
 						p.pause();				
@@ -232,13 +232,13 @@
 					}
 				});			
 				/*点击播放上一首*/
-				mui(".audio-panel").off("tap",".audio-prev").on("tap",".audio-prev",function(){	
+				mui(".audio-panel").on("tap",".audio-prev",function(){	
 					p.pause();
 					plus.nativeUI.showWaiting("数据加载中...");
 					mui.fire(parentWeb,"prev");				
 				});
 				/*点击播放下一首*/
-				mui(".audio-panel").off("tap",".audio-next").on("tap",".audio-next",function(){
+				mui(".audio-panel").on("tap",".audio-next",function(){
 					p.pause();
 					plus.nativeUI.showWaiting("数据加载中...");
 					mui.fire(parentWeb,"next");				
