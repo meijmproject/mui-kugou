@@ -70,7 +70,7 @@
 				background: -webkit-linear-gradient(bottom,rgba(0,0,0,0.6),rgba(0,0,0,0));
 				padding:0 10px;
 			}
-			.mui-icon-download{
+			.mui-icon-download,.mui-icon-download:active{
 				color:#888;
 				float: right;
 				margin-top:12px;
@@ -145,7 +145,7 @@
 						});
 							mui(".scroll-song").on("tap",".mui-icon-download",function(e){
 							e.stopPropagation();/*阻止冒泡，避免点击传播到scoll-song层*/
-							plus.nativeUI.confirm("下载需要手机酷狗客户端的支持",function(e){
+							plus.nativeUI.confirm("此页面暂不支持,请到听歌页面下载!",function(e){
 								/*获取下载手机客户端按钮，下载客户端*/
 								if(e.index==0){
 									if(mui.os.android){
@@ -155,7 +155,7 @@
 									}
 									
 								}
-							},{buttons:["下载手机酷狗","取消"]})
+							},{buttons:["下载手机客户端","取消"]})
 						});
 						function getDate(){
 							var d=new Date();
